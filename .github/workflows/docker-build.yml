@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -21,7 +23,40 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Get latest Caddy builder image digest
+        id: caddy_digest
+        run: |
+          DIGEST=$(docker manifest inspect caddy:builder --verbose | jq -r '.Descriptor.digest')
+          echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+
+      - name: Check if Caddy image has changed
+        id: check_change
+        run: |
+          if [ -f .caddy_digest ]; then
+            PREV_DIGEST=$(cat .caddy_digest)
+          else
+            PREV_DIGEST=""
+          fi
+          
+          if [ "$DIGEST" == "$PREV_DIGEST" ]; then
+            echo "No change in base image, skipping build."
+            echo "SKIP_BUILD=true" >> $GITHUB_ENV
+          else
+            echo "$DIGEST" > .caddy_digest
+            echo "Base image changed, proceeding with build."
+          fi
+
+      - name: Commit updated digest
+        if: env.SKIP_BUILD != 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@github.com"
+          git add .caddy_digest
+          git commit -m "Update Caddy image digest"
+          git push
+
       - name: Log in to GitHub Container Registry
+        if: env.SKIP_BUILD != 'true'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -29,6 +64,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push multi-arch Docker image
+        if: env.SKIP_BUILD != 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
