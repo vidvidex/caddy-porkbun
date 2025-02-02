@@ -26,7 +26,7 @@ jobs:
       - name: Get latest Caddy builder image digest
         id: caddy_digest
         run: |
-          DIGEST=$(docker manifest inspect caddy:builder --verbose | jq -r '.Descriptor.digest')
+          DIGEST=$(docker manifest inspect caddy:builder --verbose | jq -r '.[0].Descriptor.digest')
           echo "DIGEST=$DIGEST" >> $GITHUB_ENV
 
       - name: Check if Caddy image has changed
