@@ -23,9 +23,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Get latest Caddy builder image digest
-        id: caddy_digest
+      - name: Get latest Caddy builder image digest and version
+        id: caddy_info
         run: |
+          VERSION=$(docker run --rm caddy:builder caddy version)
+          echo "CADDY_VERSION=$VERSION" >> $GITHUB_ENV
           DIGEST=$(docker manifest inspect caddy:builder --verbose | jq -r '.[0].Descriptor.digest')
           echo "DIGEST=$DIGEST" >> $GITHUB_ENV
 
@@ -69,5 +71,7 @@ jobs:
         with:
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/vidvidex/caddy-porkbun:latest
+          tags: |
+            ghcr.io/vidvidex/caddy-porkbun:latest
+            ghcr.io/vidvidex/caddy-porkbun:${{ env.CADDY_VERSION }}
           file: ./Dockerfile
