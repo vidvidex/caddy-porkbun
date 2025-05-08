@@ -1,4 +1,4 @@
-name: Build and push multi-arch Docker image of Caddy with Porkbun DNS provider
+name: Build and push Caddy image with Porkbun DNS provider
 
 on:
   workflow_dispatch:
