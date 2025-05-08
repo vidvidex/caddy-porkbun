@@ -21,4 +21,4 @@ or
 docker pull ghcr.io/vidvidex/caddy-porkbun:CADDY_VERSION
 ```
 
-where `CADDY_VERSION` is the version of Caddy you want to use. For example, `2.10.4`.
+where `CADDY_VERSION` is the version of Caddy you want to use. For example, `v2.10.4`.

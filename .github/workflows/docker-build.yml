@@ -26,7 +26,7 @@ jobs:
       - name: Get latest Caddy builder image digest and version
         id: caddy_info
         run: |
-          VERSION=$(docker run --rm caddy:builder caddy version)
+          VERSION=$(docker run --rm caddy caddy version | cut -d' ' -f1)
           echo "CADDY_VERSION=$VERSION" >> $GITHUB_ENV
           DIGEST=$(docker manifest inspect caddy:builder --verbose | jq -r '.[0].Descriptor.digest')
           echo "DIGEST=$DIGEST" >> $GITHUB_ENV
