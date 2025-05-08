@@ -60,8 +60,7 @@ jobs:
         with:
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: |
-            ghcr.io/vidvidex/caddy-porkbun:latest
+          tags: ghcr.io/vidvidex/caddy-porkbun:latest
           file: ./Dockerfile
 
       - name: Delete old images
